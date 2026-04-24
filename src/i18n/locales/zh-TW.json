@@ -1375,7 +1375,13 @@
     "refresh_files": "重新整理驗證檔案",
     "refresh_files_and_quota": "重新整理驗證檔案&配額",
     "refresh_all_credentials": "重新整理全部憑證",
-    "card_idle_hint": "請使用頂部「重新整理全部憑證」按鈕取得最新配額。"
+    "card_idle_hint": "請使用頂部「重新整理全部憑證」按鈕取得最新配額。",
+    "refresh_single": "重新整理此配額",
+    "cached_at": "更新於",
+    "just_now": "剛剛",
+    "minutes_ago": "{{count}} 分鐘前",
+    "hours_ago": "{{count}} 小時前",
+    "days_ago": "{{count}} 天前"
   },
   "system_info": {
     "title": "管理中心資訊",
