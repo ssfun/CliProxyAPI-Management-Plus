@@ -5,13 +5,6 @@
 
 import { useQuotaStore } from '@/stores';
 import { indexedDBQuotaCache } from './indexedDBCache';
-import type {
-  AntigravityQuotaState,
-  ClaudeQuotaState,
-  CodexQuotaState,
-  GeminiCliQuotaState,
-  KimiQuotaState,
-} from '@/types';
 
 type QuotaProviderType = 'antigravity' | 'claude' | 'codex' | 'gemini-cli' | 'kimi';
 
@@ -191,8 +184,9 @@ class QuotaPersistenceMiddleware {
       if (cached.size === 0) return;
 
       // Write to store
-      const setterName = this.getSetterName(provider);
-      const setter = useQuotaStore.getState()[setterName];
+      const setterName = this.getSetterName(provider) as 'setAntigravityQuota' | 'setClaudeQuota' | 'setCodexQuota' | 'setGeminiCliQuota' | 'setKimiQuota';
+      const storeState = useQuotaStore.getState();
+      const setter = storeState[setterName];
 
       if (typeof setter === 'function') {
         setter((prev: Record<string, any>) => {
@@ -220,22 +214,36 @@ class QuotaPersistenceMiddleware {
     state: any,
     provider: QuotaProviderType
   ): Record<string, QuotaStatusState> | null {
-    const mapName = `${provider}Quota`.replace('-', '');
+    const mapName = this.getQuotaMapName(provider);
     return state[mapName] || null;
+  }
+
+  /**
+   * Get quota map name by provider
+   */
+  private getQuotaMapName(provider: QuotaProviderType): string {
+    const mapping: Record<QuotaProviderType, string> = {
+      'antigravity': 'antigravityQuota',
+      'claude': 'claudeQuota',
+      'codex': 'codexQuota',
+      'gemini-cli': 'geminiCliQuota',
+      'kimi': 'kimiQuota',
+    };
+    return mapping[provider];
   }
 
   /**
    * Get setter name by provider
    */
   private getSetterName(provider: QuotaProviderType): string {
-    const normalized = provider
-      .split('-')
-      .map((part, index) => {
-        if (index === 0) return part;
-        return part.charAt(0).toUpperCase() + part.slice(1);
-      })
-      .join('');
-    return `set${normalized.charAt(0).toUpperCase() + normalized.slice(1)}Quota`;
+    const mapping: Record<QuotaProviderType, string> = {
+      'antigravity': 'setAntigravityQuota',
+      'claude': 'setClaudeQuota',
+      'codex': 'setCodexQuota',
+      'gemini-cli': 'setGeminiCliQuota',
+      'kimi': 'setKimiQuota',
+    };
+    return mapping[provider];
   }
 
   /**

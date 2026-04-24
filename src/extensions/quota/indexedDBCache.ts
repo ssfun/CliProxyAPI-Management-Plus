@@ -148,7 +148,7 @@ class IndexedDBQuotaCache {
       const db = await this.ensureDB();
       const result = new Map<string, any>();
 
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         const transaction = db.transaction([STORE_QUOTAS], 'readwrite');
         const store = transaction.objectStore(STORE_QUOTAS);
         let completed = 0;
