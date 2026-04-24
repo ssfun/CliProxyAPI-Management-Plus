@@ -16,6 +16,8 @@ import {
   KIMI_CONFIG
 } from '@/components/quota';
 import type { AuthFileItem } from '@/types';
+import { FEATURES } from '@/config/features';
+import { quotaPersistenceMiddleware } from '@/extensions/quota/persistenceMiddleware';
 import styles from './QuotaPage.module.scss';
 
 export function QuotaPage() {
@@ -56,6 +58,14 @@ export function QuotaPage() {
   }, [loadConfig, loadFiles]);
 
   useHeaderRefresh(handleHeaderRefresh);
+
+  // Initialize persistence middleware
+  useEffect(() => {
+    if (FEATURES.QUOTA_PERSISTENCE) {
+      quotaPersistenceMiddleware.start();
+      return () => quotaPersistenceMiddleware.stop();
+    }
+  }, []);
 
   useEffect(() => {
     loadFiles();
