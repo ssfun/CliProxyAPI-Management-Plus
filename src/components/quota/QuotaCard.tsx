@@ -7,6 +7,8 @@ import type { ReactElement, ReactNode } from 'react';
 import type { TFunction } from 'i18next';
 import type { AuthFileItem, ResolvedTheme, ThemeColors } from '@/types';
 import { TYPE_COLORS } from '@/utils/quota';
+import { FEATURES } from '@/config/features';
+import { IconRefreshCw } from '@/components/ui/icons';
 import styles from '@/pages/QuotaPage.module.scss';
 
 type QuotaStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -15,6 +17,7 @@ export interface QuotaStatusState {
   status: QuotaStatus;
   error?: string;
   errorStatus?: number;
+  cachedAt?: number;
 }
 
 export interface QuotaProgressBarProps {
@@ -95,6 +98,7 @@ export function QuotaCard<TState extends QuotaStatusState>({
     quota?.error || t('common.unknown_error')
   );
   const idleMessageKey = onRefresh ? `${i18nPrefix}.idle` : (cardIdleMessageKey ?? `${i18nPrefix}.idle`);
+  const cachedAt = quota?.cachedAt;
 
   const getTypeLabel = (type: string): string => {
     const key = `auth_files.filter_${type}`;
@@ -103,6 +107,24 @@ export function QuotaCard<TState extends QuotaStatusState>({
     if (type.toLowerCase() === 'iflow') return 'iFlow';
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
+
+  // Format cached time
+  const formatCachedTime = (timestamp?: number): string => {
+    if (!timestamp) return '';
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return t('quota_management.just_now');
+    if (minutes < 60) return t('quota_management.minutes_ago', { count: minutes });
+    if (hours < 24) return t('quota_management.hours_ago', { count: hours });
+    return t('quota_management.days_ago', { count: days });
+  };
+
+  const showRefreshButton = FEATURES.QUOTA_SINGLE_REFRESH && quotaStatus === 'success' && onRefresh;
+  const showCachedTime = FEATURES.QUOTA_CACHE_TIMESTAMP && quotaStatus === 'success' && cachedAt;
 
   return (
     <div className={`${styles.fileCard} ${cardClassName}`}>
@@ -118,6 +140,18 @@ export function QuotaCard<TState extends QuotaStatusState>({
           {getTypeLabel(displayType)}
         </span>
         <span className={styles.fileName}>{item.name}</span>
+        {showRefreshButton && (
+          <button
+            type="button"
+            className={styles.refreshButton}
+            onClick={onRefresh}
+            disabled={!canRefresh}
+            title={t('quota_management.refresh_single')}
+            aria-label={t('quota_management.refresh_single')}
+          >
+            <IconRefreshCw size={14} />
+          </button>
+        )}
       </div>
 
       <div className={styles.quotaSection}>
@@ -143,7 +177,14 @@ export function QuotaCard<TState extends QuotaStatusState>({
             })}
           </div>
         ) : quota ? (
-          renderQuotaItems(quota, t, { styles, QuotaProgressBar })
+          <>
+            {renderQuotaItems(quota, t, { styles, QuotaProgressBar })}
+            {showCachedTime && (
+              <div className={styles.cachedTime}>
+                {t('quota_management.cached_at')}: {formatCachedTime(cachedAt)}
+              </div>
+            )}
+          </>
         ) : (
           <div className={styles.quotaMessage}>{t(idleMessageKey)}</div>
         )}

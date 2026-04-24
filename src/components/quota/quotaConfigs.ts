@@ -1132,6 +1132,7 @@ export const CLAUDE_CONFIG: QuotaConfig<
     windows: data.windows,
     extraUsage: data.extraUsage,
     planType: data.planType,
+    cachedAt: Date.now(),
   }),
   buildErrorState: (message, status) => ({
     status: 'error',
@@ -1155,7 +1156,7 @@ export const ANTIGRAVITY_CONFIG: QuotaConfig<AntigravityQuotaState, AntigravityQ
   storeSelector: (state) => state.antigravityQuota,
   storeSetter: 'setAntigravityQuota',
   buildLoadingState: () => ({ status: 'loading', groups: [] }),
-  buildSuccessState: (groups) => ({ status: 'success', groups }),
+  buildSuccessState: (groups) => ({ status: 'success', groups, cachedAt: Date.now() }),
   buildErrorState: (message, status) => ({
     status: 'error',
     groups: [],
@@ -1185,6 +1186,7 @@ export const CODEX_CONFIG: QuotaConfig<
     status: 'success',
     windows: data.windows,
     planType: data.planType,
+    cachedAt: Date.now(),
   }),
   buildErrorState: (message, status) => ({
     status: 'error',
@@ -1231,6 +1233,7 @@ export const GEMINI_CLI_CONFIG: QuotaConfig<
       tierLabel: supplementarySnapshot.tierLabel ?? data.tierLabel,
       tierId: supplementarySnapshot.tierId ?? data.tierId,
       creditBalance: supplementarySnapshot.creditBalance ?? data.creditBalance,
+      cachedAt: Date.now(),
     };
   },
   buildErrorState: (message, status) => ({
@@ -1340,7 +1343,7 @@ export const KIMI_CONFIG: QuotaConfig<KimiQuotaState, KimiQuotaRow[]> = {
   storeSelector: (state) => state.kimiQuota,
   storeSetter: 'setKimiQuota',
   buildLoadingState: () => ({ status: 'loading', rows: [] }),
-  buildSuccessState: (rows) => ({ status: 'success', rows }),
+  buildSuccessState: (rows) => ({ status: 'success', rows, cachedAt: Date.now() }),
   buildErrorState: (message, status) => ({
     status: 'error',
     rows: [],
